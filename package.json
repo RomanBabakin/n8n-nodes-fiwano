@@ -1,0 +1,52 @@
+{
+  "name": "n8n-nodes-fiwano",
+  "version": "0.1.0",
+  "description": "n8n nodes for the Fiwano messaging platform API (WhatsApp, Instagram, Facebook Messenger)",
+  "keywords": [
+    "n8n-community-node-package",
+    "fiwano",
+    "whatsapp",
+    "instagram",
+    "messenger",
+    "messaging"
+  ],
+  "license": "MIT",
+  "homepage": "https://fiwano.com",
+  "author": {
+    "name": "Roman Babakin",
+    "email": "contact@fiwano.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rmnbb/n8n-nodes-fiwano"
+  },
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && cp -r nodes/Fiwano/fiwano.svg dist/nodes/Fiwano/",
+    "dev": "tsc --watch",
+    "lint": "eslint nodes credentials --ext .ts",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/FiwanoApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/Fiwano/Fiwano.node.js",
+      "dist/nodes/Fiwano/FiwanoTrigger.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "n8n-workflow": "*",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}
