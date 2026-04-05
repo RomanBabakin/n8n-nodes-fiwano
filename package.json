@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rmnbb/n8n-nodes-fiwano"
+    "url": "https://github.com/RomanBabakin/n8n-nodes-fiwano"
   },
   "main": "index.js",
   "scripts": {
@@ -41,6 +41,7 @@
     ]
   },
   "devDependencies": {
+    "@types/node": "^20",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.0.0",
     "n8n-workflow": "*",
