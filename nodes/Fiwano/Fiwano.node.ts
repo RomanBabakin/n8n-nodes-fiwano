@@ -134,12 +134,19 @@ async function executeChannel(
 		const body: IDataObject = { code };
 		if (extra.webhook_url) body.webhook_url = extra.webhook_url;
 		if (extra.webhook_secret) body.webhook_secret = extra.webhook_secret;
+		if (extra.webhook_events && (extra.webhook_events as string[]).length > 0) {
+			body.webhook_events = extra.webhook_events;
+		}
 		return fiwanoApiRequest.call(this, 'POST', '/channels/exchange-code', body);
 	}
 	if (operation === 'update') {
 		const channelId = this.getNodeParameter('channelId', i) as string;
 		const fields = this.getNodeParameter('updateFields', i) as IDataObject;
-		return fiwanoApiRequest.call(this, 'PATCH', `/channels/${channelId}`, fields);
+		const body: IDataObject = {};
+		if (fields.webhook_url) body.webhook_url = fields.webhook_url;
+		if (fields.webhook_secret) body.webhook_secret = fields.webhook_secret;
+		if (fields.webhook_events) body.webhook_events = fields.webhook_events;
+		return fiwanoApiRequest.call(this, 'PATCH', `/channels/${channelId}`, body);
 	}
 	if (operation === 'delete') {
 		const channelId = this.getNodeParameter('channelId', i) as string;
