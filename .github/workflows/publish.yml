@@ -1,0 +1,63 @@
+# Publishes n8n-nodes-fiwano to npm on every version tag push.
+#
+# Provenance: npm publish --provenance creates a cryptographic attestation
+# linking this package to this exact workflow, repo, and commit.
+# Required by n8n Creator Portal since May 2026.
+#
+# ─── ONE-TIME SETUP ──────────────────────────────────────────────────────
+#
+# 1. On npmjs.com: Access Tokens → Generate New Token → Granular Access Token
+#    - Scope: Read and write (publish)
+#    - Package: n8n-nodes-fiwano (or all packages)
+# 2. In GitHub repo: Settings → Secrets → Actions → New secret
+#    - Name: NPM_TOKEN
+#    - Value: paste the token
+#
+# ─── RELEASE PROCESS ─────────────────────────────────────────────────────
+#
+# From the project directory:
+#   npm version patch    # or minor / major
+#   git push && git push --tags
+#
+# This triggers the workflow which builds, lints, and publishes to npm.
+
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+jobs:
+  publish:
+    name: Build & Publish
+    runs-on: ubuntu-latest
+
+    permissions:
+      # Required for npm provenance attestation (OIDC token)
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish to npm
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
