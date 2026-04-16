@@ -29,7 +29,7 @@ Built for AI assistants, CRMs, helpdesks, and any product that needs conversatio
 
 | Resource | Operations |
 |----------|-----------|
-| Message | Send Text, Send Template (WhatsApp) |
+| Message | Send Text, Send Media, Send Template (WhatsApp) |
 | Channel | Get Many, Get, Generate OAuth URL, Exchange OAuth Code, Update Webhook, Delete |
 | Contact | Get Profile (Instagram, Facebook — enriches sender with name, profile picture, follower count) |
 | Template | Get Many, Get, Create, Update, Delete (WhatsApp only) |
@@ -74,7 +74,6 @@ n8n import:workflow --input=workflows/fiwano-complete-demo.json
 
 ### Self-hosted without npm access (manual)
 
-Inside the container or on the host where n8n runs:
 
 ```bash
 mkdir -p ~/.n8n/nodes
@@ -154,7 +153,14 @@ Key fields available in expressions after the trigger:
 | `{{ $json.data.from }}` | Sender ID — use as `recipient` when replying |
 | `{{ $json.data.from_name }}` | Sender name (WhatsApp only; `null` on Instagram/Facebook) |
 | `{{ $json.data.text }}` | Message text (for `type: text` messages) |
-| `{{ $json.data.type }}` | `text` or `unsupported` |
+| `{{ $json.data.type }}` | `text`, `image`, `audio`, `video`, `document`, `sticker`, or `unsupported` |
+| `{{ $json.data.media.media_id }}` | ID to download file via `GET /api/v1/media/{media_id}` (Media license) |
+| `{{ $json.data.media.kind }}` | Media kind: `image`, `audio`, `voice`, `video`, `document`, `sticker` |
+| `{{ $json.data.media.download_url }}` | Pre-built download URL (Media license only) |
+| `{{ $json.data.media.mime_type }}` | MIME type of the received file |
+| `{{ $json.data.media.expires_at }}` | ISO 8601 expiry timestamp (temp storage) |
+| `{{ $json.data.caption }}` | Caption text attached to the media (WhatsApp) |
+| `{{ $json.data.upgrade_required }}` | `"media"` if channel lacks Media license for this message |
 
 ---
 
@@ -186,6 +192,30 @@ Variable format:
 - **Positional** (numbered `{{1}}`, `{{2}}`): `{"body": ["val1", "val2"], "header": ["val"], "buttons": [{"index": 0, "value": "abc"}]}`
 - **Named** (custom keys): `{"body": {"customer_name": "John"}}`
 - Leave empty if the template has no variables
+
+### Media message (image, audio, video, document)
+
+Send a media file via a public HTTPS URL. **Requires a Media license** on the channel's billing plan.
+
+```
+Resource: Message → Operation: Send Media
+Channel ID: <channel_id>
+Recipient: {{ $('Fiwano Trigger').item.json.data.from }}
+Media Type: image
+Media URL: https://example.com/photo.jpg
+Additional Fields → Caption: Check this out!
+```
+
+Supported types per channel:
+
+| Media Type | WhatsApp | Instagram | Facebook |
+|------------|----------|-----------|----------|
+| image | ✓ | ✓ | ✓ |
+| audio | ✓ | ✓ | ✓ |
+| video | ✓ | ✓ | ✓ |
+| document | ✓ | — | ✓ (as file) |
+
+> Channels without a Media license return HTTP 402. Upgrade at [fiwano.com/billing](https://fiwano.com/billing).
 
 ---
 

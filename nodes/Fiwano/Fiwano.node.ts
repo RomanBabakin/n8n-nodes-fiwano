@@ -200,6 +200,21 @@ async function executeMessage(
 		return fiwanoApiRequest.call(this, 'POST', '/messages/send-template', body);
 	}
 
+	if (operation === 'sendMedia') {
+		const mediaType = this.getNodeParameter('mediaType', i) as string;
+		const mediaUrl = this.getNodeParameter('mediaUrl', i) as string;
+		const extra = this.getNodeParameter('mediaAdditionalFields', i) as IDataObject;
+		const body: IDataObject = {
+			channel_id: channelId,
+			recipient,
+			media_type: mediaType,
+			media_url: mediaUrl,
+		};
+		if (extra.caption) body.caption = extra.caption;
+		if (extra.filename) body.filename = extra.filename;
+		return fiwanoApiRequest.call(this, 'POST', '/messages/send-media', body);
+	}
+
 	throw new NodeOperationError(this.getNode(), `Unknown message operation: ${operation}`);
 }
 

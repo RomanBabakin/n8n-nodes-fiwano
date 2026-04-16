@@ -8,6 +8,12 @@ export const messageOperations: INodeProperties = {
 	displayOptions: { show: { resource: ['message'] } },
 	options: [
 		{
+			name: 'Send Media',
+			value: 'sendMedia',
+			action: 'Send a media message',
+			description: 'Send an image, audio, video, or document via URL. Requires a Media license.',
+		},
+		{
 			name: 'Send Template',
 			value: 'sendTemplate',
 			action: 'Send a WhatsApp template message',
@@ -104,5 +110,83 @@ export const messageFields: INodeProperties[] = [
 		displayOptions: {
 			show: { resource: ['message'], operation: ['sendTemplate'] },
 		},
+	},
+
+	// ── Send Media: Media Type ────────────────────────────────────────
+	{
+		displayName: 'Media Type',
+		name: 'mediaType',
+		type: 'options',
+		required: true,
+		options: [
+			{
+				name: 'Audio',
+				value: 'audio',
+				description: 'WhatsApp, Instagram, Facebook',
+			},
+			{
+				name: 'Document',
+				value: 'document',
+				description: 'WhatsApp and Facebook only',
+			},
+			{
+				name: 'Image',
+				value: 'image',
+				description: 'WhatsApp, Instagram, Facebook',
+			},
+			{
+				name: 'Video',
+				value: 'video',
+				description: 'WhatsApp, Instagram, Facebook',
+			},
+		],
+		default: 'image',
+		description: 'Type of media to send. Not all types are supported on every channel.',
+		displayOptions: {
+			show: { resource: ['message'], operation: ['sendMedia'] },
+		},
+	},
+
+	// ── Send Media: Media URL ─────────────────────────────────────────
+	{
+		displayName: 'Media URL',
+		name: 'mediaUrl',
+		type: 'string',
+		default: '',
+		required: true,
+		placeholder: 'https://example.com/file.jpg',
+		description: 'Public HTTPS URL of the media file to send. The file must be accessible by Fiwano servers.',
+		displayOptions: {
+			show: { resource: ['message'], operation: ['sendMedia'] },
+		},
+	},
+
+	// ── Send Media: Optional Fields ───────────────────────────────────
+	{
+		displayName: 'Additional Fields',
+		name: 'mediaAdditionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		default: {},
+		displayOptions: {
+			show: { resource: ['message'], operation: ['sendMedia'] },
+		},
+		options: [
+			{
+				displayName: 'Caption',
+				name: 'caption',
+				type: 'string',
+				default: '',
+				description: 'Caption text shown below the media. WhatsApp only (image, video, document).',
+			},
+			{
+				displayName: 'Filename',
+				name: 'filename',
+				type: 'string',
+				default: '',
+				placeholder: 'e.g. invoice.pdf',
+				description: 'Filename shown to recipient. WhatsApp document only.',
+			},
+		],
 	},
 ];
