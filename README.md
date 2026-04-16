@@ -257,4 +257,4 @@ Add **Contact → Get Profile** (Channel ID: `$json.channel_id`, User ID: `$json
 
 ## License
 
-MIT — © Roman Babakin / [rmnbb.cloud](https://rmnbb.cloud)
+MIT — © Roman Babakin / [rmnbb.com](https://rmnbb.com)
