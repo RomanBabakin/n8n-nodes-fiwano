@@ -15,8 +15,18 @@ Key benefits:
 
 Built for AI assistants, CRMs, helpdesks, and any product that needs conversational messaging at business scale.
 
-**[7-day free trial](https://fiwano.com/auth/login) — no credit card required.**  
-**$12/mo** per channel slot (1 WhatsApp + 1 Instagram + 1 Facebook Messenger, unlimited messages).
+**[7-day free trial](https://fiwano.com/auth/login) — no credit card required.**
+
+## License Tiers
+
+One license covers a slot bundle: **1 WhatsApp + 1 Instagram + 1 Facebook Messenger** channel, with unlimited messages.
+
+| Tier | Monthly | Capabilities |
+|------|---------|-------------|
+| Messaging | $12 | Text messages in/out, templates (WhatsApp), delivery statuses |
+| Media | $19 | Everything in Messaging + inbound media and files, outbound files via URL |
+
+New accounts start with a **7-day free trial on the Media tier** (full functionality).
 
 ## Nodes
 
@@ -31,6 +41,7 @@ Built for AI assistants, CRMs, helpdesks, and any product that needs conversatio
 |----------|-----------|
 | Message | Send Text, Send Media, Send Template (WhatsApp) |
 | Channel | Get Many, Get, Generate OAuth URL, Exchange OAuth Code, Update Webhook, Delete |
+| Media | Download (saves received file as binary data) |
 | Contact | Get Profile (Instagram, Facebook — enriches sender with name, profile picture, follower count) |
 | Template | Get Many, Get, Create, Update, Delete (WhatsApp only) |
 | Redirect URI | Get Many, Add, Delete |
