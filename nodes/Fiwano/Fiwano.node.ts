@@ -7,12 +7,13 @@ import {
 	NodeOperationError,
 } from 'n8n-workflow';
 
-import { fiwanoApiRequest } from './GenericFunctions';
+import { fiwanoApiRequest, fiwanoApiRequestBinary } from './GenericFunctions';
 import { channelOperations, channelFields } from './ChannelDescription';
 import { messageOperations, messageFields } from './MessageDescription';
 import { templateOperations, templateFields } from './TemplateDescription';
 import { contactOperations, contactFields } from './ContactDescription';
 import { redirectOperations, redirectFields } from './RedirectDescription';
+import { mediaOperations, mediaFields } from './MediaDescription';
 
 export class Fiwano implements INodeType {
 	description: INodeTypeDescription = {
@@ -37,6 +38,7 @@ export class Fiwano implements INodeType {
 				options: [
 					{ name: 'Channel', value: 'channel' },
 					{ name: 'Contact', value: 'contact' },
+					{ name: 'Media', value: 'media' },
 					{ name: 'Message', value: 'message' },
 					{ name: 'Redirect URI', value: 'redirect' },
 					{ name: 'Template', value: 'template' },
@@ -48,11 +50,13 @@ export class Fiwano implements INodeType {
 			templateOperations,
 			contactOperations,
 			redirectOperations,
+			mediaOperations,
 			...channelFields,
 			...messageFields,
 			...templateFields,
 			...contactFields,
 			...redirectFields,
+			...mediaFields,
 		],
 	};
 
@@ -67,7 +71,21 @@ export class Fiwano implements INodeType {
 			try {
 				let responseData: IDataObject;
 
-				if (resource === 'channel') {
+				if (resource === 'media') {
+					if (operation === 'download') {
+						const mediaId = this.getNodeParameter('mediaId', i) as string;
+						const binaryProperty = this.getNodeParameter('binaryProperty', i) as string;
+						const { buffer, mimeType, fileName } = await fiwanoApiRequestBinary.call(this, mediaId);
+						const binaryData = await this.helpers.prepareBinaryData(buffer, fileName, mimeType);
+						returnData.push({
+							json: { media_id: mediaId },
+							binary: { [binaryProperty]: binaryData },
+							pairedItem: { item: i },
+						});
+						continue;
+					}
+					throw new NodeOperationError(this.getNode(), `Unknown media operation: ${operation}`);
+				} else if (resource === 'channel') {
 					responseData = await executeChannel.call(this, operation, i);
 				} else if (resource === 'message') {
 					responseData = await executeMessage.call(this, operation, i);
