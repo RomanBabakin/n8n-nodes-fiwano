@@ -7,6 +7,7 @@ n8n community node for **[Fiwano](https://fiwano.com)** — a unified messaging 
 Fiwano is a verified Meta Tech Provider that abstracts the complexity of WhatsApp Cloud API, Instagram Messaging API, and Facebook Messenger API into a single, consistent REST API. Connect your Meta-verified business accounts once via simple Facebook auth — no Meta developer portal, no app setup, no individual channel verification required.
 
 Key benefits:
+- **Official Meta APIs only** — built on WhatsApp Cloud API, Instagram Messaging API and Facebook Messenger API. No browser automation, no unofficial client simulation, no account ban risk. Production-safe at any scale.
 - **One API for three channels** — identical request format across WhatsApp, Instagram DM, and Facebook Messenger
 - **Real-time webhooks** — incoming messages and delivery statuses delivered to your endpoint, HMAC-signed
 - **WhatsApp template management** — create, manage, and send approved templates directly from the API
