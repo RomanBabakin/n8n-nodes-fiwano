@@ -11,13 +11,13 @@ export const messageOperations: INodeProperties = {
 			name: 'Send Media',
 			value: 'sendMedia',
 			action: 'Send a media message',
-			description: 'Send an image, audio, video, or document via URL. Requires a Media license.',
+			description: 'Send an image, audio, video, or document via URL. Requires a Pro license.',
 		},
 		{
 			name: 'Send Template',
 			value: 'sendTemplate',
 			action: 'Send a WhatsApp template message',
-			description: 'Send an approved WhatsApp template (required outside the 24h window)',
+			description: 'Send an approved WhatsApp template (Pro required; required outside the 24h window)',
 		},
 		{
 			name: 'Send Text',
@@ -154,8 +154,11 @@ export const messageFields: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
-		placeholder: 'https://example.com/file.jpg',
-		description: 'Public HTTPS URL of the media file to send. The file must be accessible by Fiwano servers.',
+		placeholder: 'https://my-bucket.s3.amazonaws.com/photo.jpg?X-Amz-Signature=...',
+		description:
+			'HTTPS URL of the media file. Meta fetches it directly — Fiwano does not store it. ' +
+			'For non-public content use a signed URL (S3/GCS/R2 presigned, Azure SAS, or HMAC). ' +
+			'Public URLs are accessible to anyone who learns them. Max 2048 chars; no credentials in URL; no private IPs.',
 		displayOptions: {
 			show: { resource: ['message'], operation: ['sendMedia'] },
 		},

@@ -1,6 +1,6 @@
 # n8n-nodes-fiwano
 
-n8n community node for **[Fiwano](https://fiwano.com)** — a unified messaging API for **WhatsApp, Instagram DM, and Facebook Messenger**.
+n8n verified community node for **[Fiwano](https://fiwano.com)** — a unified messaging API for **WhatsApp, Instagram DM, and Facebook Messenger**.
 
 ## What is Fiwano?
 
@@ -24,10 +24,10 @@ One license covers a slot bundle: **1 WhatsApp + 1 Instagram + 1 Facebook Messen
 
 | Tier | Monthly | Capabilities |
 |------|---------|-------------|
-| Messaging | $12 | Text messages in/out, templates (WhatsApp), delivery statuses |
-| Media | $19 | Everything in Messaging + inbound media and files, outbound files via URL |
+| Starter | $12 | Text messages in/out and delivery statuses |
+| Pro | $19 | Everything in Starter + inbound media and files, outbound media via HTTPS URL (signed URLs supported), WhatsApp template management and sending |
 
-New accounts start with a **7-day free trial on the Media tier** (full functionality).
+New accounts start with a **7-day free trial on the Pro tier** (full functionality).
 
 ## Nodes
 
@@ -78,13 +78,23 @@ n8n import:workflow --input=workflows/fiwano-complete-demo.json
 
 ## Installation
 
-### n8n GUI (community nodes)
+Fiwano is [verified by n8n](https://n8n.io/integrations/fiwano/) and can be installed directly from the n8n editor by an instance owner or admin.
 
-1. **Settings → Community Nodes**
-2. Enter `n8n-nodes-fiwano`
-3. **Install**
+### n8n app (verified community node)
 
-### Self-hosted without npm access (manual)
+1. Open the editor canvas and open the nodes panel with **+** or **N**.
+2. Search for **Fiwano**.
+3. Select **Fiwano** under **More from the community**.
+4. Click **Install**.
+5. Add the **Fiwano** or **Fiwano Trigger** node to your workflow.
+
+See n8n's [verified community node installation guide](https://docs.n8n.io/integrations/community-nodes/installation/verified-install/) for details. On n8n Cloud, installation may need to be enabled by the instance owner in the Cloud Admin Panel. On self-hosted n8n, the related community-node settings are controlled by environment variables.
+
+### Manual install fallback
+
+Use manual npm installation only when the in-app verified-node installation is unavailable in your environment.
+
+#### Self-hosted npm
 
 
 ```bash
@@ -166,13 +176,13 @@ Key fields available in expressions after the trigger:
 | `{{ $json.data.from_name }}` | Sender name (WhatsApp only; `null` on Instagram/Facebook) |
 | `{{ $json.data.text }}` | Message text (for `type: text` messages) |
 | `{{ $json.data.type }}` | `text`, `image`, `audio`, `video`, `document`, `sticker`, or `unsupported` |
-| `{{ $json.data.media.media_id }}` | ID to download file via `GET /api/v1/media/{media_id}` (Media license) |
+| `{{ $json.data.media.media_id }}` | ID to download file via `GET /api/v1/media/{media_id}` (Pro license) |
 | `{{ $json.data.media.kind }}` | Media kind: `image`, `audio`, `voice`, `video`, `document`, `sticker` |
-| `{{ $json.data.media.download_url }}` | Pre-built download URL (Media license only) |
+| `{{ $json.data.media.download_url }}` | Pre-built download URL (Pro license only) |
 | `{{ $json.data.media.mime_type }}` | MIME type of the received file |
 | `{{ $json.data.media.expires_at }}` | ISO 8601 expiry timestamp (temp storage) |
 | `{{ $json.data.caption }}` | Caption text attached to the media (WhatsApp) |
-| `{{ $json.data.upgrade_required }}` | `"media"` if channel lacks Media license for this message |
+| `{{ $json.data.upgrade_required }}` | `"pro"` if channel lacks a Pro license for this message |
 
 ---
 
@@ -207,16 +217,22 @@ Variable format:
 
 ### Media message (image, audio, video, document)
 
-Send a media file via a public HTTPS URL. **Requires a Media license** on the channel's billing plan.
+Send a media file via HTTPS URL. **Requires a Pro license** on the channel's billing plan.
 
 ```
 Resource: Message → Operation: Send Media
 Channel ID: <channel_id>
 Recipient: {{ $('Fiwano Trigger').item.json.data.from }}
 Media Type: image
-Media URL: https://example.com/photo.jpg
+Media URL: https://my-bucket.s3.amazonaws.com/photo.jpg?X-Amz-Signature=...
 Additional Fields → Caption: Check this out!
 ```
+
+Meta fetches the file directly from `Media URL` — Fiwano does not download or store it.
+
+**For non-public content, use a signed URL** — S3/GCS/R2 presigned, Azure SAS, or HMAC-signed URL on your own server. Set expiry to ≥ 5 minutes. Public URLs are accessible to anyone who learns them.
+
+URL validation: HTTPS only, max 2048 chars, no credentials in URL (`user:pass@`), no private/loopback IPs. Violations return HTTP 422.
 
 Supported types per channel:
 
@@ -227,7 +243,16 @@ Supported types per channel:
 | video | ✓ | ✓ | ✓ |
 | document | ✓ | — | ✓ (as file) |
 
-> Channels without a Media license return HTTP 402. Upgrade at [fiwano.com/billing](https://fiwano.com/billing).
+**Handling errors.** On Meta-side failure the response carries `success: false` and `error_code` (Meta error code) — branch on it in your workflow:
+
+| `error_code` | What it means | What to do |
+|---|---|---|
+| `131052` | Meta could not download from URL | URL unreachable, expired signature, or wrong Content-Type — verify URL works in a fresh request |
+| `131053` | Format/size unsupported, or Meta rate-limited your hosting provider's network | Retry; if persistent, use AWS S3 / GCS / Cloudflare R2 |
+| `131047`, `131057` | Outside 24h window (WhatsApp) | Switch to Send Template |
+| `190`, `200`, `10` | Token issue | Reconnect the channel |
+
+> Channels without a Pro license return HTTP 402. Upgrade at [fiwano.com/billing](https://fiwano.com/billing).
 
 ---
 
